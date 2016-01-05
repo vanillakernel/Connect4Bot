@@ -2,6 +2,7 @@
 
 import pandas as pd
 import random
+import math
 
 # First start with random selections. Make it smart later.
 
@@ -19,15 +20,18 @@ def random_move (current_board, player):
 # As this game pieces are being 'dropped', find last empty cell in row.
 def get_row(current_board, c):
     column = current_board[c]
-    index = 0
-    for cell in column:
-	if (not cell):
-	    return index
-	index += 1
-	if (index == len(column) and not cell): #column is full.
-	    return False
-    return index-1 #if none of the cells have a piece, return the last index.
+    row = check_cell(column,0)
+    return row
 
+def check_cell(column,index):
+    # If we are at the last row, just return that.
+    if (index == len(column)-1):
+	return index
+    if (math.isnan(column[index]) and not math.isnan(column[index+1])):
+	return index 
+    return check_cell(column, index+1)
+   
+    
 
 def print_board (board):
     board = board.fillna('_') # fill NaNs with something more appealing.
@@ -49,7 +53,7 @@ def main ():
      print "Computer goes first."
 
     i=0
-    while (i<20): 
+    while (i<30): 
 	random_move(board, player)
 	i+=1
 	player = int(not player)
