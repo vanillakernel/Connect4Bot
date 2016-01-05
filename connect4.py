@@ -9,24 +9,23 @@ import math
 
 # Pick a cell at random and go there. This is a useful first step 
 def random_move (current_board, player):
-    print "Current board: %r" % current_board
     #select a random column
     c = random.choice(list(current_board.columns.values))
-    r = get_row(current_board, c)
-    current_board.loc[r][c] = player    
-    print "New board: \n %r" % print_board(current_board)
-
-
-# As this game pieces are being 'dropped', find last empty cell in row.
-def get_row(current_board, c):
     column = current_board[c]
-    row = check_cell(column,0)
-    return row
-
+    r = check_cell(column,0)
+    if (r): #
+	current_board.loc[r][c] = player    
+	print "New board: \n %r" % print_board(current_board)
+    else:
+	random_move(current_board, player) # try again
+    
+    
 def check_cell(column,index):
     # If we are at the last row, just return that.
     if (index == len(column)-1):
 	return index
+    if (not math.isnan(column[0])): #if the 0th is full, column is full. 
+	return False
     if (math.isnan(column[index]) and not math.isnan(column[index+1])):
 	return index 
     return check_cell(column, index+1)
