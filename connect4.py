@@ -9,16 +9,17 @@ import math
 
 # Pick a cell at random and go there. This is a useful first step 
 def random_move (current_board, player):
-    index = random.randint(0,6)
-    get_column(current_board, index);
+    c = random.randint(0,6) # pick a random column
+    column =  get_column(current_board, c);
+    
     #select a random column
-    #column = current_board[c]
-    #r = check_cell(column,0)
-    #if (r): #
-#	current_board.loc[r][c] = player    
-#	print "New board: \n %r" % print_board(current_board)
-#    else:
-#	random_move(current_board, player) # try again
+    r = check_cell(column,0)
+    print r
+    if (r): #
+	current_board[r][c] = player   
+	print_board(current_board)
+    else:
+	random_move(current_board, player) # try again
 
 def get_column(current_board, index):
     column = []
@@ -65,10 +66,10 @@ def check_cell(column,index):
     # If we are at the last row and it is still empty, just return that
     if (index == len(column)-1):
 	return index
-    if (not math.isnan(column[0])): #if top cell full, column is full. 
+    if (column[0] is not None): #if top cell full, column is full. 
 	return False
     # If current cell is empty, but the next one down is full, return index.
-    if (math.isnan(column[index]) and not math.isnan(column[index+1])):
+    if (column[index] is not None and column[index+1] is not None):
 	return index 
     #Otherwise, check the next cell down.
     return check_cell(column, index+1)
@@ -76,8 +77,10 @@ def check_cell(column,index):
     
 
 def print_board (board):
-    board = board.fillna('_') # fill NaNs with something more appealing.
-    return board
+    for row in board:
+	#['_' if v is None else v for v in row]
+	for cell in board:
+	print row
 
 
 def main ():
