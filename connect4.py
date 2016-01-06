@@ -9,16 +9,22 @@ import math
 
 # Pick a cell at random and go there. This is a useful first step 
 def random_move (current_board, player):
+    index = random.randint(0,6)
+    get_column(current_board, index);
     #select a random column
-    c = random.choice(list(current_board.columns.values))
-    column = current_board[c]
-    r = check_cell(column,0)
-    if (r): #
-	current_board.loc[r][c] = player    
-	print "New board: \n %r" % print_board(current_board)
-    else:
-	random_move(current_board, player) # try again
+    #column = current_board[c]
+    #r = check_cell(column,0)
+    #if (r): #
+#	current_board.loc[r][c] = player    
+#	print "New board: \n %r" % print_board(current_board)
+#    else:
+#	random_move(current_board, player) # try again
 
+def get_column(current_board, index):
+    column = []
+    for row in current_board:
+	column.append(row[index])
+    return column
 
 # This will play the game forward to D depth from the current board.
 def game_tree(current_board, player, depth):
@@ -35,7 +41,11 @@ def define_value(board, player):
     # If the board is a win, score it at 100, and abitrary number.
 	# Check for four  horizontal.
     for row in board.iterrows():
-	print row  
+	r = row.values
+	print r
+	if (not math.isnan(cell)): # cell is occupied.
+	    if (cell == player):
+		return
 	# Check for four vertical
 	# Check for four diagonal
 
@@ -75,7 +85,16 @@ def main ():
     #   matrix as formatting can be applied  on a per-cell or colum basis, and 
     #   it prints better.
 
-    board = pd.DataFrame(index=range(6), columns=['A','B','C','D','E','F','G'])
+    board = [[None,None,None,None,None,None,None],
+	     [None,None,None,None,None,None,None],
+	     [None,None,None,None,None,None,None],
+	     [None,None,None,None,None,None,None],
+	     [None,None,None,None,None,None,None],
+	     [None,None,None,None,None,None,None]]
+   
+    
+    
+    # board = pd.DataFrame(index=range(6), columns=['A','B','C','D','E','F','G'])
 
     # Pick who goes first. If player is false, then it is the computer's turn.
     player = random.randint(0,1)
@@ -84,13 +103,13 @@ def main ():
     if (not player):
      print "Computer goes first."
 
-    define_value(board, player)
+    #define_value(board, player)
 
     i=0
-    #while (i<30): 
-#	random_move(board, player)
-#	i+=1
-#	player = int(not player)
+    while (i<1): 
+	random_move(board, player)
+	i+=1
+	player = int(not player)
 
 if __name__ == "__main__":
         main()
