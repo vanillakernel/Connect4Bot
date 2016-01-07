@@ -3,22 +3,21 @@
 import random
 import math
 
-# First start with random selections. Make it smart later.
-
 
 # Pick a cell at random and go there. This is a useful first step 
 def random_move (current_board, player):
     c = random.randint(0,6) # pick a random column
     column =  get_column(current_board, c);
     
-    #select a random column
+    #Figure out which row we drop to.
     r = check_cell(column,0)
-    if (r): #
+    if (r): 
 	current_board[r][c] = player   
 	print_board(current_board)
     else:
 	random_move(current_board, player) # try again
 
+# Returns a virtual column from the array of arrays.
 def get_column(current_board, index):
     column = []
     for row in current_board:
@@ -67,7 +66,7 @@ def check_cell(column,index):
     if (column[0] is not None): #if top cell full, column is full. 
 	return False
     # If current cell is empty, but the next one down is full, return index.
-    if (column[index] is not None and column[index+1] is not None):
+    if (column[index] is None and column[index+1] is not None):
 	return index 
     #Otherwise, check the next cell down.
     return check_cell(column, index+1)
@@ -75,18 +74,17 @@ def check_cell(column,index):
     
 
 def print_board (board):
+    line = 1
+    print ' '.join([' ','A','B','C','D','E','F','G'])
     for row in board:
-        s="_"
-	print  [s if v is None else v for v in row]
-            
+        # Add column and row labels
+        print '%r %s' % (line,' '.join(map(str,["_" if v is None else  "X" if v == 1 else v for v in row] )) )
+        line+=1   
     
 
 
 def main ():
-    # Create initial game dataframe. We are using dataframes instead of a
-    #   matrix as formatting can be applied  on a per-cell or colum basis, and 
-    #   it prints better.
-
+    # Create the empty first board.
     board = [[None,None,None,None,None,None,None],
 	     [None,None,None,None,None,None,None],
 	     [None,None,None,None,None,None,None],
@@ -94,10 +92,6 @@ def main ():
 	     [None,None,None,None,None,None,None],
 	     [None,None,None,None,None,None,None]]
    
-    
-    
-    # board = pd.DataFrame(index=range(6), columns=['A','B','C','D','E','F','G'])
-
     # Pick who goes first. If player is false, then it is the computer's turn.
     player = random.randint(0,1)
     if (player):
@@ -105,13 +99,13 @@ def main ():
     if (not player):
      print "Computer goes first."
 
-    #define_value(board, player)
-
+    # Make the computer play against itself.
     i=0
-    while (i<1): 
+    while (i<30): 
 	random_move(board, player)
 	i+=1
 	player = int(not player)
+
 
 if __name__ == "__main__":
         main()
