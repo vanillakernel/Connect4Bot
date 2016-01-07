@@ -76,9 +76,10 @@ def check_cell(column,index):
 
 def print_board (board):
     for row in board:
-	#['_' if v is None else v for v in row]
-	for cell in board:
-            print cell
+        s="_"
+	print  [s if v is None else v for v in row]
+            
+    
 
 
 def main ():
