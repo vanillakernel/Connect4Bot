@@ -1,6 +1,5 @@
 #!/bin/python
 
-import pandas as pd
 import random
 import math
 
@@ -14,7 +13,6 @@ def random_move (current_board, player):
     
     #select a random column
     r = check_cell(column,0)
-    print r
     if (r): #
 	current_board[r][c] = player   
 	print_board(current_board)
@@ -80,7 +78,7 @@ def print_board (board):
     for row in board:
 	#['_' if v is None else v for v in row]
 	for cell in board:
-	print row
+            print cell
 
 
 def main ():
