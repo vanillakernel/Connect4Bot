@@ -8,7 +8,6 @@ import math
 def random_move (current_board, player):
     c = random.randint(0,6) # pick a random column
     column =  get_column(current_board, c);
-    
     #Figure out which row we drop to.
     r = check_cell(column)
     if (r): 
@@ -69,22 +68,39 @@ def define_value(board, player):
 
 
 # Get valid moves, and return an array of potential moves.
-def get_moves(current_board,player):
-  valid_moves =[]
-  
+def get_valid_moves(current_board,player):
+  valid_moves =[] # this will store r/c where valid moves are.
+   
   # For each column, try to drop a token, and return r/c if valid.
   for c in range (0,7):
-    new_board = current_board # Reset board
     column = get_column(current_board, c);
     r = check_cell(column)
-    if (r):
-      print new_board
-      new_board[r][c] = player
-      valid_moves.append(new_board)
-    
-
+    if (r): #if the move is valid add it to the list of valid moves
+      valid_moves.append((r,c))
   return valid_moves
 
+
+
+#This will play back all the moves passed to it. It is passed and array of
+# coordinate tuples, then flips between players as it runs them.
+def play_moves(board,player,move_array):
+    for move in move_array:
+	print "Move is %r,%r" % move
+	r, c = move
+	board[r][c] = player
+	player = not player
+
+
+# Test if a move is valid, then make it or return false.
+def play_single_move(board,player,move_tuple):
+    print "Player %r 's move is %r,%r" % player, move
+    valid_moves = get_valid_moves(board, player)
+    if move in valid_moves:
+	r, c = move
+	board[r][c] = player
+	player = not player
+    else:
+	return False
 
 
 # Check which cell (if any), we can drop to in a column.
@@ -107,7 +123,7 @@ def print_board (board):
     print ' '.join([' ','A','B','C','D','E','F','G'])
     for row in board:
         # Add column and row labels
-        print '%r %s' % (line,' '.join(map(str,["_" if v is None else  "X" if v == 1 else v for v in row] )) )
+        print '%r %s' % (line,' '.join(map(str,["_" if v is None else  "X" if v == 1 else "O" if v==0 else v for v in row] )) )
         line+=1   
     
 
@@ -129,9 +145,9 @@ def main ():
      print "Computer goes first."
     print "Valid moves:"
     moves = get_moves(board, player)
-    for move in moves:
-      print "\n"
-      print move
+    play_moves(board,player,moves)
+    print_board(board)  
+
     # Make the computer play against itself.
 '''    i=0
     while (i<30): 
