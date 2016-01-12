@@ -10,12 +10,15 @@ def random_move (current_board, player):
     column =  get_column(current_board, c);
     
     #Figure out which row we drop to.
-    r = check_cell(column,0)
+    r = check_cell(column)
     if (r): 
 	current_board[r][c] = player   
-	print_board(current_board)
+	#print_board(current_board)
     else:
 	random_move(current_board, player) # try again
+
+
+
 
 # Returns a virtual column from the array of arrays.
 def get_column(current_board, index):
@@ -24,10 +27,16 @@ def get_column(current_board, index):
 	column.append(row[index])
     return column
 
+
+
 # This will play the game forward to D depth from the current board.
 def game_tree(current_board, player, depth):
    return "" 
-   
+
+
+
+
+
 # This defines the value of a board given a few rules.
 def define_value(board, player):
     value = 0
@@ -58,8 +67,28 @@ def define_value(board, player):
     return value
 
 
+
+# Get valid moves, and return an array of potential moves.
+def get_moves(current_board,player):
+  valid_moves =[]
+  
+  # For each column, try to drop a token, and return r/c if valid.
+  for c in range (0,7):
+    new_board = current_board # Reset board
+    column = get_column(current_board, c);
+    r = check_cell(column)
+    if (r):
+      print new_board
+      new_board[r][c] = player
+      valid_moves.append(new_board)
+    
+
+  return valid_moves
+
+
+
 # Check which cell (if any), we can drop to in a column.
-def check_cell(column,index):
+def check_cell(column, index=0):
     # If we are at the last row and it is still empty, just return that
     if (index == len(column)-1):
 	return index
@@ -98,13 +127,18 @@ def main ():
      print "Player goes first."
     if (not player):
      print "Computer goes first."
-
+    print "Valid moves:"
+    moves = get_moves(board, player)
+    for move in moves:
+      print "\n"
+      print move
     # Make the computer play against itself.
-    i=0
+'''    i=0
     while (i<30): 
 	random_move(board, player)
 	i+=1
 	player = int(not player)
+'''
 
 
 if __name__ == "__main__":
