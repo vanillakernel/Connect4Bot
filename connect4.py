@@ -3,19 +3,13 @@
 import random
 import math
 
+###	CHOOSE FROM THESE GAME ALGORITHMS   ###
 
-# Pick a cell at random and go there. This is a useful first step 
+
+# Random move.
 def random_move (current_board, player):
-    c = random.randint(0,6) # pick a random column
-    column =  get_column(current_board, c);
-    #Figure out which row we drop to.
-    r = check_cell(column)
-    if (r): 
-	current_board[r][c] = player   
-	#print_board(current_board)
-    else:
-	random_move(current_board, player) # try again
-
+    moves = get_valid_moves(current_board,player)
+    play_single_move(current_board, player,random.choice(moves))
 
 
 
@@ -85,20 +79,23 @@ def get_valid_moves(current_board,player):
 # coordinate tuples, then flips between players as it runs them.
 def play_moves(board,player,move_array):
     for move in move_array:
-	print "Move is %r,%r" % move
 	r, c = move
+	print "{0} moves to row {1}, column {2}.".format( 
+		"Player" if player == 1 else "Computer" , r+1 , c+1)
 	board[r][c] = player
 	player = not player
 
 
 # Test if a move is valid, then make it or return false.
-def play_single_move(board,player,move_tuple):
-    print "Player %r 's move is %r,%r" % player, move
+def play_single_move(board,player,move):
     valid_moves = get_valid_moves(board, player)
     if move in valid_moves:
 	r, c = move
 	board[r][c] = player
+	print "{0} moves to row {1}, column {2}.".format( 
+		"Player" if player == 1 else "Computer" , r+1 , c+1)
 	player = not player
+	print_board(board)
     else:
 	return False
 
@@ -125,6 +122,7 @@ def print_board (board):
         # Add column and row labels
         print '%r %s' % (line,' '.join(map(str,["_" if v is None else  "X" if v == 1 else "O" if v==0 else v for v in row] )) )
         line+=1   
+    print "\n"
     
 
 
@@ -143,18 +141,14 @@ def main ():
      print "Player goes first."
     if (not player):
      print "Computer goes first."
-    print "Valid moves:"
-    moves = get_moves(board, player)
-    play_moves(board,player,moves)
-    print_board(board)  
 
     # Make the computer play against itself.
-'''    i=0
-    while (i<30): 
+    i=0
+    while (i<5): 
 	random_move(board, player)
 	i+=1
 	player = int(not player)
-'''
+
 
 
 if __name__ == "__main__":
