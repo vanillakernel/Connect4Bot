@@ -16,30 +16,73 @@ def check_cell(column, index=0):
 	return index 
     #Otherwise, check the next cell down.
     return check_cell(column, index+1)
+
+
+###############################################################################
+# The player will contain anything that makes decisions or takes actions.     #
+###############################################################################
+class Player (object):
+  marker=None
+  
+  def __init__(self,marker):
+    self.marker = marker
+    if marker == 0:
+      print "I am a computer player."
+    if marker == 1:
+      print "I am a human player."
+
+    
+  # Make a random move.
+  def random_move (self, board):
+      moves = board.get_valid_moves()
+      board.play_single_move(self.marker,random.choice(moves))
+
+  
+  # This defines the value of a board given a few rules.
+  def define_value(self, board):
+      value = 0
+      player_count = 0
+      enemy_count = 0
+
+  # TODO see if I can do the static evaluation once based on player.
+
+    # If the board is a win, score it at 100, and abitrary number.
+    # Check for four  horizontal.
+      for row in board.iterrows():
+       r = row.values
+       print r
+       if (not math.isnan(cell)): # cell is occupied.
+        return
+       if (cell == self.marker):
+        return
+    # Check for four vertical
+    # Check for four diagonal
+
+      # If the board is a loss, score it at -100
+
+      # If we place a piece next to another piece, it is a slightly higher value.
+      
+
+
+      # For minmax, we will need to make the score high for player 0, low for 1
+      if self.marker:
+        return value*(-1)
+      return value
+
+  
    
 ###############################################################################
 # The board makes sense as an object, however, memory footprint will be larger.
 ###############################################################################
-
 class Game_Board (object):
-  
   
   def __init__(self,rows,columns):
     self.board = []
-    column = []
     for x in range(0,rows):
-        for y in range(0,columns):
-          column.append(None)
-        self.board.append(column)
-
-
-  # Random move.
-  def random_move (self, player):
-      moves = self.get_valid_moves(player)
-      self.play_single_move(player,random.choice(moves))
-
-  ### ONLY ONE TO CHOOSE SORRY  ###
-
+      column = []
+      for y in range(0,columns):
+        column.append(None)
+      self.board.append(column)
 
   # Returns a virtual column from the array of arrays.
   def get_column(self, index):
@@ -53,42 +96,8 @@ class Game_Board (object):
   def game_tree(self, player, depth):
      return "" 
 
-
-  # This defines the value of a board given a few rules.
-  def define_value(self, player):
-      value = 0
-      player_count = 0
-      enemy_count = 0
-
-  # TODO see if I can do the static evaluation once based on player.
-
-    # If the board is a win, score it at 100, and abitrary number.
-    # Check for four  horizontal.
-      for row in self.iterrows():
-       r = row.values
-       print r
-       if (not math.isnan(cell)): # cell is occupied.
-        return
-       if (cell == player):
-        return
-    # Check for four vertical
-    # Check for four diagonal
-
-      # If the board is a loss, score it at -100
-
-      # If we place a piece next to another piece, it is a slightly higher value.
-      
-
-
-      # For minmax, we will need to make the score high for player 0, low for 1
-      if player:
-        return value*(-1)
-      return value
-
-
-
   # Get valid moves, and return an array of potential moves.
-  def get_valid_moves(self,player):
+  def get_valid_moves(self):
     valid_moves =[] # this will store r/c where valid moves are.
      
     # For each column, try to drop a token, and return r/c if valid.
@@ -99,60 +108,69 @@ class Game_Board (object):
         valid_moves.append((r,c))
     return valid_moves
 
-
-
   #This will play back all the moves passed to it. It is passed and array of
   # coordinate tuples, then flips between players as it runs them.
-  def play_moves(self,player,move_array):
-      for move in move_array:
-        r, c = move
-        print "{0} moves to row {1}, column {2}.".format( 
+  def play_moves(self,first_player,move_array):
+    player = first_player # this is just for code clarity.
+    for move in move_array:
+      r, c = move
+      print "{0} moves to row {1}, column {2}.".format( 
           "Player" if player == 1 else "Computer" , r+1 , c+1)
-        self[r][c] = player
+      self.board[r][c] = player
       player = not player
 
 
   # Test if a move is valid, then make it or return false.
-  def play_single_move(self,player,move):
-      valid_moves = self.get_valid_moves(player)
+  def play_single_move(self,player_marker,move):
+      valid_moves = self.get_valid_moves() 
       if move in valid_moves:
         r, c = move
-        self[r][c] = player
+        self.board[r][c] = player_marker
         print "{0} moves to row {1}, column {2}.".format( 
-          "Player" if player == 1 else "Computer" , r+1 , c+1)
-        player = not player
-        print_board(self)
+          "Player" if player_marker == 1 else "Computer" , r+1 , c+1)
+        self.print_board()
       else:
         return False
     
   def print_board (self):
     line = 1
     print ' '.join([' ','A','B','C','D','E','F','G'])
-    for row in self:
+    for row in self.board:
        # Add column and row labels
        print '%r %s' % (line,' '.join(map(str,["_" if v is None else 
 	       "X" if v == 1 else "O" if v==0 else v for v in row] )) )
        line+=1
     print "\n"
 
-
+############################
+#           MAIN           #
+############################
 
 def main ():
     # Create the empty first board.
-    board_object = Game_Board(6,7)
-    # Pick who goes first. If player is false, then it is the computer's turn.
-    player = random.randint(0,1)
-    if (player):
-     print "Player goes first."
-    if (not player):
-     print "Computer goes first."
+    board = Game_Board(6,7)
+    
+    # Create players
+    computer = Player(0)
+    human = Player(1)
+
+    # Pick who goes first. If current_player is 0, then it is the computer's turn.
+    current_player = random.randint(0,1)
+
+    if (current_player):
+      print "The human goes first! \n"
+    else:
+      print "The computer goes first \n"
 
     # Make the computer play against itself.
     i=0
     while (i<5): 
-	board_object.random_move(player)
-	i+=1
-	player = int(not player)
+      if (current_player):
+	human.random_move(board)
+      else:
+        computer.random_move(board)
+      i+=1
+      current_player = int(not current_player)
 
 
 
