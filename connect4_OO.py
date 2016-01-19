@@ -2,7 +2,7 @@
 
 import random
 import math
-
+import itertools
 
 # Check which cell (if any), we can drop to in a column.
 def check_cell(column, index=0):
@@ -99,7 +99,6 @@ class Game_Board (object):
   # Get valid moves, and return an array of potential moves.
   def get_valid_moves(self):
     valid_moves =[] # this will store r/c where valid moves are.
-     
     # For each column, try to drop a token, and return r/c if valid.
     for c in range (0,7):
       column = self.get_column(c);
@@ -107,6 +106,51 @@ class Game_Board (object):
       if (r): #if the move is valid add it to the list of valid moves
         valid_moves.append((r,c))
     return valid_moves
+
+  def board_score(self, player):
+    #check a list for consecutive values
+     if player == 0:
+	 sign = -1
+	 enemy = 1
+     else:
+	 sign = 1
+	 enemy = 0
+     score = 1000*(-sign)
+     # We can convert each column to a row and put it through here.
+     def score_row(row):
+	temp_row = list (row)
+	for x, y in itertools.groupby(temp_row):
+	    length = len(list(y)) # y is changed in place. SIGHthon.
+	    if length>=4 and x is not None: # Board is a win.
+    		return True
+    	    if length==3 and x is enemy: # Enemy will win
+		return (100* (-sign))
+	    if length==3 and x is not None: # We may win!
+		return (100*sign)
+	    if length==2 and x is enemy: # Enemy has a pair
+		return (25* (-sign))
+	    if length==2 and x is not None: # We have a pair
+		return (25*sign)
+	    return (10*sign)
+     def score_diagonal(self):
+	return "ugh"
+     for c in range (0,7):
+	 column = self.get_column(c);
+	 row_score =  score_row(column)
+	 if row_score == True:
+	     return True
+	 else:
+	    print ("{0} is the player, {1} is the enemy. Row score is {2} "
+		    ).format(player, enemy, row_score)
+	    score += row_score
+     for row in self.board:
+	 row_score = score_row(row)
+	 if row_score == True:
+	     return True
+	 else:
+	     score += row_score
+     return score
+     
 
   #This will play back all the moves passed to it. It is passed and array of
   # coordinate tuples, then flips between players as it runs them.
@@ -164,14 +208,20 @@ def main ():
 
     # Make the computer play against itself.
     i=0
-    while (i<5): 
+    win = False
+    while (i<30 and win==False): 
       if (current_player):
 	human.random_move(board)
       else:
         computer.random_move(board)
       i+=1
+      score = board.board_score(current_player)
+      print "This move has a score of %r" % score
+      if score == True:
+	  win = True
+	  print "{0} wins!" .format(
+		  "Computer" if current_player == 0 else "Human")
       current_player = int(not current_player)
-
 
 
 if __name__ == "__main__":
