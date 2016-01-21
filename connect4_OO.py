@@ -2,7 +2,7 @@
 
 import random
 import math
-import itertools
+from itertools import groupby
 
 # Check which cell (if any), we can drop to in a column.
 def check_cell(column, index=0):
@@ -36,8 +36,88 @@ class Player (object):
   def random_move (self, board):
       moves = board.get_valid_moves()
       board.play_single_move(self.marker,random.choice(moves))
+      score = self.board_score(board)
+      #print "This move has a score of %r" % score
+      if score == True:
+	  print "{0} wins!" .format(
+		  "Computer" if self.marker == 0 else "Human")
+	  return True
+      else:
+	  return False
+  def board_score(self, board):
+    #check a list for consecutive values
+     if self.marker == 0:
+	 sign = -1
+	 enemy = 1
+     else:
+	 sign = 1
+	 enemy = 0
+     score = 10*(-sign) # reset the score for the board.
+     # We can convert each column to a row and put it through here.
+     def score_row(row, score):
+	#temp_row = list (row)
+	matches = [(key,len(list(group))) for key, group in groupby(row)]
+	#print matches
+	#TODO Add a check to see if there is a valid adjacent move.
+	for match in matches:
+	    #print match
+	    key,count=match
+	    #count = len(list(group))
+	    #print "me: {0} key: {1} count:{2}".format(self.marker, key, count)
+	    if count>=4 and key is self.marker: # Board is a win for us.
+		print "HNGGGGGG"
+		return True
+	    if count==3 and key is enemy: # Enemy will win
+		print "Our enemy, the {0}, has a triple!".format(
+			"Human" if enemy else "Computer")
+		score += (5* (-sign))
+	    if count==3 and key is self.marker: # We may win!
+		print "We, the {0}, are so close!".format(
+			"Human" if self.marker else "Computer")
+		score += (5*sign)
+	    if count==2 and key is enemy: # Enemy has a pair
+		print "Our enemy, the {0}, has a pair".format(
+			"Human" if enemy else "Computer")
+		score += (1* (-sign))
+	    if count==2 and key is self.marker: # We have a pair
+		print "We, the {0}, have a pair".format(
+			"Human" if self.marker else "Computer")
+		score += (1*sign)
+	return score
+     def score_diagonal(self):
+	return "ugh"
+     for c in range (0,7):
+	 column = board.get_column(c);
+	 #print column
+	 row_score =  score_row(column, score)
+	 if row_score == True:
+	     return True
+	 else:
+	    score += row_score
+     for row in board.board:
+	 row_score = score_row(row,score)
+	 if row_score == True:
+	     return True
+	 else:
+	     score += row_score
+	     
+     print ("Playing as the {0} with {1} as my opponent, I score this board at {2} "
+	     ).format("Human" if self.marker else "Computer",
+		     "Human" if enemy else "Computer", score)
+     
+     return score
+     
 
-  
+  #This will play back all the moves passed to it. It is passed and array of
+  # coordinate tuples, then flips between players as it runs them.
+  def play_moves(self,first_player,move_array):
+    player = first_player # this is just for code clarity.
+    for move in move_array:
+      r, c = move
+      print "{0} moves to row {1}, column {2}.".format( 
+          "Player" if player == 1 else "Computer" , r+1 , c+1)
+      self.board[r][c] = player
+      player = not player
   # This defines the value of a board given a few rules.
   def define_value(self, board):
       value = 0
@@ -107,61 +187,6 @@ class Game_Board (object):
         valid_moves.append((r,c))
     return valid_moves
 
-  def board_score(self, player):
-    #check a list for consecutive values
-     if player == 0:
-	 sign = -1
-	 enemy = 1
-     else:
-	 sign = 1
-	 enemy = 0
-     score = 1000*(-sign)
-     # We can convert each column to a row and put it through here.
-     def score_row(row):
-	temp_row = list (row)
-	for x, y in itertools.groupby(temp_row):
-	    length = len(list(y)) # y is changed in place. SIGHthon.
-	    if length>=4 and x is not None: # Board is a win.
-    		return True
-    	    if length==3 and x is enemy: # Enemy will win
-		return (100* (-sign))
-	    if length==3 and x is not None: # We may win!
-		return (100*sign)
-	    if length==2 and x is enemy: # Enemy has a pair
-		return (25* (-sign))
-	    if length==2 and x is not None: # We have a pair
-		return (25*sign)
-	    return (10*sign)
-     def score_diagonal(self):
-	return "ugh"
-     for c in range (0,7):
-	 column = self.get_column(c);
-	 row_score =  score_row(column)
-	 if row_score == True:
-	     return True
-	 else:
-	    print ("{0} is the player, {1} is the enemy. Row score is {2} "
-		    ).format(player, enemy, row_score)
-	    score += row_score
-     for row in self.board:
-	 row_score = score_row(row)
-	 if row_score == True:
-	     return True
-	 else:
-	     score += row_score
-     return score
-     
-
-  #This will play back all the moves passed to it. It is passed and array of
-  # coordinate tuples, then flips between players as it runs them.
-  def play_moves(self,first_player,move_array):
-    player = first_player # this is just for code clarity.
-    for move in move_array:
-      r, c = move
-      print "{0} moves to row {1}, column {2}.".format( 
-          "Player" if player == 1 else "Computer" , r+1 , c+1)
-      self.board[r][c] = player
-      player = not player
 
 
   # Test if a move is valid, then make it or return false.
@@ -209,20 +234,16 @@ def main ():
     # Make the computer play against itself.
     i=0
     win = False
-    while (i<30 and win==False): 
+    while (i<10 and win==False): 
       if (current_player):
-	human.random_move(board)
+	score=human.random_move(board)
       else:
-        computer.random_move(board)
+        score=computer.random_move(board)
       i+=1
-      score = board.board_score(current_player)
-      print "This move has a score of %r" % score
-      if score == True:
-	  win = True
-	  print "{0} wins!" .format(
-		  "Computer" if current_player == 0 else "Human")
       current_player = int(not current_player)
-
+      if score == True:
+	  print "Game Over"
+	  win = True
 
 if __name__ == "__main__":
         main()
