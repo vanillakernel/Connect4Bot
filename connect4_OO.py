@@ -118,37 +118,6 @@ class Player (object):
           "Player" if player == 1 else "Computer" , r+1 , c+1)
       self.board[r][c] = player
       player = not player
-  # This defines the value of a board given a few rules.
-  def define_value(self, board):
-      value = 0
-      player_count = 0
-      enemy_count = 0
-
-  # TODO see if I can do the static evaluation once based on player.
-
-    # If the board is a win, score it at 100, and abitrary number.
-    # Check for four  horizontal.
-      for row in board.iterrows():
-       r = row.values
-       print r
-       if (not math.isnan(cell)): # cell is occupied.
-        return
-       if (cell == self.marker):
-        return
-    # Check for four vertical
-    # Check for four diagonal
-
-      # If the board is a loss, score it at -100
-
-      # If we place a piece next to another piece, it is a slightly higher value.
-      
-
-
-      # For minmax, we will need to make the score high for player 0, low for 1
-      if self.marker:
-        return value*(-1)
-      return value
-
   
    
 ###############################################################################
@@ -158,6 +127,9 @@ class Game_Board (object):
   
   def __init__(self,rows,columns):
     self.board = []
+    self.rows = rows
+    self.columns=columns
+
     for x in range(0,rows):
       column = []
       for y in range(0,columns):
@@ -180,7 +152,7 @@ class Game_Board (object):
   def get_valid_moves(self):
     valid_moves =[] # this will store r/c where valid moves are.
     # For each column, try to drop a token, and return r/c if valid.
-    for c in range (0,7):
+    for c in range (0,self.columns):
       column = self.get_column(c);
       r = check_cell(column)
       if (r): #if the move is valid add it to the list of valid moves
@@ -200,10 +172,15 @@ class Game_Board (object):
         self.print_board()
       else:
         return False
-    
+   
+
+#TODO replace with a cross-product.
   def print_board (self):
     line = 1
-    print ' '.join([' ','A','B','C','D','E','F','G'])
+    columns_label = [chr(32)]
+    for char in range(ord('A'), (ord('A') + self.columns) ):
+	columns_label.append(chr(char))
+    print ' '.join(columns_label)
     for row in self.board:
        # Add column and row labels
        print '%r %s' % (line,' '.join(map(str,["_" if v is None else 
