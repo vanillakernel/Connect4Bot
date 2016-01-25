@@ -3,6 +3,8 @@
 import random
 import math
 from itertools import groupby
+import copy
+
 
 # Check which cell (if any), we can drop to in a column.
 def check_cell(column, index=0):
@@ -34,8 +36,8 @@ class Player (object):
     
   # Make a random move.
   def random_move (self, board):
-      moves = board.get_valid_moves()
-      board.play_single_move(self.marker,random.choice(moves))
+      moves = board.valid_moves()
+      self.play_single_move(board,random.choice(moves))
       score = self.board_score(board)
       #print "This move has a score of %r" % score
       if score == True:
@@ -44,6 +46,22 @@ class Player (object):
 	  return True
       else:
 	  return False
+
+  # MinMax
+
+  def minmax(self, board):
+    if (self.marker):
+	highest_score=(100000)
+    else:
+	highest_score=(-100000)
+    for move in board.valid_moves():
+	temp_board = copy.deepcopy(board)
+	temp_board=self.play_single_move(temp_board, move)
+	score = self.board_score(temp_board)
+	print score
+
+
+
   def board_score(self, board):
     #check a list for consecutive values
      if self.marker == 0:
@@ -107,6 +125,18 @@ class Player (object):
      
      return score
      
+  # Test if a move is valid, then make it or return false.
+  def play_single_move(self,local_board,move):
+      valid_moves = local_board.valid_moves() 
+      if move in valid_moves:
+        r, c = move
+        local_board.board[r][c] = self.marker
+        print "{0} moves to row {1}, column {2}.".format( 
+          "Player" if self.marker == 1 else "Computer" , r+1 , c+1)
+        local_board.print_board()
+	return local_board
+      else:
+        return False
 
   #This will play back all the moves passed to it. It is passed and array of
   # coordinate tuples, then flips between players as it runs them.
@@ -149,7 +179,7 @@ class Game_Board (object):
      return "" 
 
   # Get valid moves, and return an array of potential moves.
-  def get_valid_moves(self):
+  def valid_moves(self):
     valid_moves =[] # this will store r/c where valid moves are.
     # For each column, try to drop a token, and return r/c if valid.
     for c in range (0,self.columns):
@@ -161,17 +191,6 @@ class Game_Board (object):
 
 
 
-  # Test if a move is valid, then make it or return false.
-  def play_single_move(self,player_marker,move):
-      valid_moves = self.get_valid_moves() 
-      if move in valid_moves:
-        r, c = move
-        self.board[r][c] = player_marker
-        print "{0} moves to row {1}, column {2}.".format( 
-          "Player" if player_marker == 1 else "Computer" , r+1 , c+1)
-        self.print_board()
-      else:
-        return False
    
 
 #TODO replace with a cross-product.
@@ -213,8 +232,10 @@ def main ():
     win = False
     while (i<10 and win==False): 
       if (current_player):
+	print human.minmax(board)  
 	score=human.random_move(board)
       else:
+	print computer.minmax(board)
         score=computer.random_move(board)
       i+=1
       current_player = int(not current_player)
