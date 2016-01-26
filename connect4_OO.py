@@ -38,8 +38,13 @@ class Player (object):
   def random_move (self, board):
       moves = board.valid_moves()
       self.play_single_move(board,random.choice(moves))
+      print "The random move is:"
+      board.print_board()
       score = self.board_score(board)
       #print "This move has a score of %r" % score
+      #print ("Playing the RANDOM MOVE, as the {0} with {1} as my opponent, I score this board at {2} "
+#	     ).format("Human" if self.marker else "Computer",
+#		     "Human" if not self.marker else "Computer", score)
       if score == True:
 	  print "{0} wins!" .format(
 		  "Computer" if self.marker == 0 else "Human")
@@ -47,81 +52,99 @@ class Player (object):
       else:
 	  return False
 
+
   # MinMax
 
   def minmax(self, board):
-    if (self.marker):
-	highest_score=(100000)
-    else:
-	highest_score=(-100000)
-    for move in board.valid_moves():
+    moves = board.valid_moves()
+    best_board = copy.deepcopy(board)
+    best_move = random.choice(moves) #yolo
+    if (self.marker): # Human wants the max.
+	best_score=(-1)
+    else: # Computer wants the min.
+	best_score=(1)
+    for move in moves:
 	temp_board = copy.deepcopy(board)
-	temp_board=self.play_single_move(temp_board, move)
-	score = self.board_score(temp_board)
-	print score
-
-
-
+	temp_board = self.play_single_move(temp_board, move)
+	temp_board.score = self.board_score(temp_board)
+	if (temp_board.score == True):
+	    best_score = temp_board.score
+	    best_board = temp_board
+	    best_move = move
+	    print "The WINNING  move is: %r, %r:" % move
+	    best_board.print_board()
+	    return move
+	if (self.marker and temp_board.score > best_score):#Maximize
+	    print "Found a better score: {0} is better than {1} for the {2}".format(
+		    temp_board.score, best_score, "Computer" if self.marker == 0 else "Human")
+	    best_score = temp_board.score
+	    best_board = temp_board
+	    best_move = move
+	if (not self.marker and temp_board.score < best_score): #minimize
+	    print "Found a better score: {0} is better than {1} for the {2}".format(
+		    temp_board.score, best_score, "Computer" if self.marker == 0 else "Human")
+	    best_score = temp_board.score
+	    best_board = temp_board
+	    best_move = move
+    print "The ideal move is: %r, %r:" % move
+    best_board.print_board()
+    return move 
+  
+  # Time to score.
   def board_score(self, board):
-    #check a list for consecutive values
      if self.marker == 0:
 	 sign = -1
 	 enemy = 1
      else:
 	 sign = 1
 	 enemy = 0
-     score = 10*(-sign) # reset the score for the board.
+     score = 2*sign # reset the score for the board.
      # We can convert each column to a row and put it through here.
      def score_row(row, score):
-	#temp_row = list (row)
 	matches = [(key,len(list(group))) for key, group in groupby(row)]
-	#print matches
-	#TODO Add a check to see if there is a valid adjacent move.
 	for match in matches:
-	    #print match
 	    key,count=match
-	    #count = len(list(group))
-	    #print "me: {0} key: {1} count:{2}".format(self.marker, key, count)
 	    if count>=4 and key is self.marker: # Board is a win for us.
 		print "HNGGGGGG"
+		#score += (20000*sign)
 		return True
 	    if count==3 and key is enemy: # Enemy will win
-		print "Our enemy, the {0}, has a triple!".format(
-			"Human" if enemy else "Computer")
-		score += (5* (-sign))
+		#print "Our enemy, the {0}, has a triple!".format(
+		#	"Human" if enemy else "Computer")
+		score += (200* (-sign))
 	    if count==3 and key is self.marker: # We may win!
-		print "We, the {0}, are so close!".format(
-			"Human" if self.marker else "Computer")
-		score += (5*sign)
+		#print "We, the {0}, are so close!".format(
+		#	"Human" if self.marker else "Computer")
+		score += (200*sign)
 	    if count==2 and key is enemy: # Enemy has a pair
-		print "Our enemy, the {0}, has a pair".format(
-			"Human" if enemy else "Computer")
+		#print "Our enemy, the {0}, has a pair".format(
+		#	"Human" if enemy else "Computer")
 		score += (1* (-sign))
 	    if count==2 and key is self.marker: # We have a pair
-		print "We, the {0}, have a pair".format(
-			"Human" if self.marker else "Computer")
+		#print "We, the {0}, have a pair".format(
+		#	"Human" if self.marker else "Computer")
 		score += (1*sign)
 	return score
      def score_diagonal(self):
 	return "ugh"
-     for c in range (0,7):
-	 column = board.get_column(c);
-	 #print column
-	 row_score =  score_row(column, score)
-	 if row_score == True:
-	     return True
-	 else:
-	    score += row_score
-     for row in board.board:
+     # We score rows first because all things equal,rows are easier to complete.
+     for row in board.board: 
 	 row_score = score_row(row,score)
 	 if row_score == True:
 	     return True
 	 else:
 	     score += row_score
+     for c in range (0,7):
+	 column = board.get_column(c);
+	 row_score =  score_row(column, score)
+	 if row_score == True:
+	     return True
+	 else:
+	    score += row_score
 	     
-     print ("Playing as the {0} with {1} as my opponent, I score this board at {2} "
+     '''print ("Playing as the {0} with {1} as my opponent, I score this board at {2} "
 	     ).format("Human" if self.marker else "Computer",
-		     "Human" if enemy else "Computer", score)
+		     "Human" if enemy else "Computer", score)'''
      
      return score
      
@@ -131,9 +154,9 @@ class Player (object):
       if move in valid_moves:
         r, c = move
         local_board.board[r][c] = self.marker
-        print "{0} moves to row {1}, column {2}.".format( 
-          "Player" if self.marker == 1 else "Computer" , r+1 , c+1)
-        local_board.print_board()
+        #print "{0} moves to row {1}, column {2}.".format( 
+         # "Player" if self.marker == 1 else "Computer" , r+1 , c+1)
+        #local_board.print_board()
 	return local_board
       else:
         return False
@@ -232,10 +255,12 @@ def main ():
     win = False
     while (i<10 and win==False): 
       if (current_player):
-	print human.minmax(board)  
+	print "Human's turn."
+	human.minmax(board)  
 	score=human.random_move(board)
       else:
-	print computer.minmax(board)
+	print "Computer's turn."
+	computer.minmax(board)
         score=computer.random_move(board)
       i+=1
       current_player = int(not current_player)
