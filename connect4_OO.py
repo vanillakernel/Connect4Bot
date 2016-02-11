@@ -96,7 +96,7 @@ class Player (object):
 	best_score=(-1)
     else: # Computer wants the min.
 	best_score=(1)
-	
+#TODO make this a nested function.
     if (depth > 0):
 	for move in moves:
 	    temp_board = copy.deepcopy(board)
@@ -122,9 +122,10 @@ class Player (object):
 		best_score = temp_board.score
 		best_board = temp_board
 		best_move = move
-	self.minmax_deep(temp_board, depth-1, best_score)
+	print "minmax deep done"
+	self.minmax_deep(best_board, depth-1, best_score)
 
-    print "The ideal move is: %r, %r:" % best_move
+    print "The ideal move for depth {0} is: {1}:".format (depth, best_move)
     best_board.print_board()
     return best_move 
   
